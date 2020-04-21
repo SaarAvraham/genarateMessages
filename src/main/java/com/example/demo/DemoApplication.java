@@ -57,8 +57,8 @@ public class DemoApplication {
     }
 
     public static void generatedMessages() throws IOException, TimeoutException {
-        for (int i = 0; i < 5000000; i++) {
-            String message = String.valueOf(i);
+        for (int i = 0; i < 15000000; i++) {
+            String message = i + " " +json;
             rabbitTemplate.convertAndSend("tut.fanout", "", message);
         }
 
