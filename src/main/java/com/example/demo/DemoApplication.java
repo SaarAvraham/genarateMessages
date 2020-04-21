@@ -50,8 +50,8 @@ public class DemoApplication {
 
     public static void main(String[] args) throws IOException, TimeoutException, SQLException, InterruptedException {
 //		SpringApplication.run(DemoApplication.class, args);
-        generatedMessages();
-//        populateDataLake();
+//        generatedMessages();
+        populateDataLake();
         Thread.sleep(40000);
         System.exit(0);
     }
@@ -65,12 +65,16 @@ public class DemoApplication {
 
     }
 
+
     public static void populateDataLake() throws SQLException {
-        for (int i = 0; i < 50; i++) {
-            Connection conn = DriverManager.getConnection("jdbc:sqlserver://DESKTOP-S42L7FK\\MSSQLSERVER01;databaseName=Data-Lake;", "sa", "sa"); // TODO: 4/14/2020 Use Connection pool/SPRING JDBC
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO dt (value) VALUES (?) ");
+        Connection conn = DriverManager.getConnection("jdbc:sqlserver://DESKTOP-S42L7FK\\MSSQLSERVER01;databaseName=Data-Lake;", "sa", "sa"); // TODO: 4/14/2020 Use Connection pool/SPRING JDBC
+        double sum = 0;
+        int times = 50;
+        for (int i = 0; i < times ;i++) {
+//            System.out.println(i+"- Going to insert 10000 records at once");
             Instant start = Instant.now();
-            for (int j = 0; j < 20000; j++) {
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO dt (value) VALUES (?) ");
+            for (int j = 0; j < 10000; j++) {
                 ps.setString(1, String.format("%s %d", json, j));
                 ps.addBatch();
                 ps.clearParameters();
@@ -78,9 +82,14 @@ public class DemoApplication {
 
             int[] insertions = ps.executeBatch();
             Instant end = Instant.now();
-            System.out.println("Time taken: " + Duration.between(start, end).getSeconds() + " seconds");
-            conn.close();
+            sum += Duration.between(start, end).toMillis();
+//            System.out.println(i+"- Time taken: " + Duration.between(start, end).toMillis() + " milliseconds");
         }
+        conn.close();
+
+        double avg = sum/times;
+            System.out.println("Average time taken: " +avg+ " milliseconds, times: "+ times);
+
     }
 
 //    public static void bcp() throws SQLException {
